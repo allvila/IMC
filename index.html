@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de IMC e Gordura Corporal</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #0d0d0d;
+        }
+        .container {
+            max-width: 420px;
+        }
+        .input-glow:focus {
+            box-shadow: 0 0 8px #00ffcc;
+            border-color: #00ffcc;
+        }
+        .button-glow:hover {
+            box-shadow: 0 0 15px #00ffcc, 0 0 20px #00ffcc;
+        }
+    </style>
+</head>
+<body class="bg-gray-950 flex items-center justify-center min-h-screen text-gray-200">
+    <div class="container mx-auto p-8 bg-gray-900 rounded-2xl shadow-lg border border-gray-700">
+        <h1 class="text-3xl font-bold text-center mb-6 text-white">Calculadora de IMC & Gordura Corporal</h1>
+        <p class="text-center text-gray-400 mb-8">
+            Insira seus dados para calcular seu Índice de Massa Corporal e porcentagem de gordura.
+        </p>
+
+        <!-- Seção de IMC -->
+        <h2 class="text-xl font-semibold mb-4 text-white">IMC</h2>
+        <div class="space-y-4 mb-8">
+            <div>
+                <label for="weight" class="block text-sm font-medium text-gray-300">Peso (kg)</label>
+                <input type="number" id="weight" placeholder="Ex: 70.5" class="mt-1 block w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none input-glow transition duration-150 ease-in-out text-white">
+            </div>
+            <div>
+                <label for="height" class="block text-sm font-medium text-gray-300">Altura (m)</label>
+                <input type="number" id="height" placeholder="Ex: 1.75" step="0.01" class="mt-1 block w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none input-glow transition duration-150 ease-in-out text-white">
+            </div>
+        </div>
+
+        <!-- Seção de Gordura Corporal -->
+        <h2 class="text-xl font-semibold mb-4 text-white">Gordura Corporal</h2>
+        <div class="space-y-4 mb-8">
+            <div>
+                <label for="gender" class="block text-sm font-medium text-gray-300">Sexo</label>
+                <select id="gender" class="mt-1 block w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none input-glow transition duration-150 ease-in-out text-white">
+                    <option value="">Selecione</option>
+                    <option value="male">Homem</option>
+                    <option value="female">Mulher</option>
+                </select>
+            </div>
+            <div id="measurements-fields" class="space-y-4 hidden">
+                <div>
+                    <label for="neck" class="block text-sm font-medium text-gray-300">Circunferência do Pescoço (cm)</label>
+                    <input type="number" id="neck" placeholder="Ex: 38" class="mt-1 block w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none input-glow transition duration-150 ease-in-out text-white">
+                </div>
+                <div>
+                    <label for="waist" class="block text-sm font-medium text-gray-300">Circunferência da Cintura (cm)</label>
+                    <input type="number" id="waist" placeholder="Ex: 90" class="mt-1 block w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none input-glow transition duration-150 ease-in-out text-white">
+                </div>
+                <div id="hip-field" class="hidden">
+                    <label for="hip" class="block text-sm font-medium text-gray-300">Circunferência do Quadril (cm)</label>
+                    <input type="number" id="hip" placeholder="Ex: 100" class="mt-1 block w-full px-4 py-2 bg-gray-800 border border-gray-700 rounded-md focus:outline-none input-glow transition duration-150 ease-in-out text-white">
+                </div>
+            </div>
+        </div>
+
+        <button id="calculateBtn" class="button-glow w-full mt-8 py-3 px-4 rounded-md font-semibold text-gray-900 bg-cyan-400 hover:bg-cyan-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-cyan-500 focus:ring-offset-gray-900 transition duration-150 ease-in-out shadow-md">
+            Calcular Tudo
+        </button>
+
+        <!-- Seção de Instruções de Medição -->
+        <div class="mt-8 p-6 bg-gray-800 rounded-lg border border-gray-700 space-y-4">
+            <h3 class="text-md font-bold text-gray-200">Como Medir as Circunferências</h3>
+            <ul class="text-sm text-gray-400 list-disc list-inside space-y-2">
+                <li><strong class="text-white">Pescoço:</strong> Medir na base do pescoço, logo abaixo da laringe.</li>
+                <li><strong class="text-white">Cintura:</strong> Medir na parte mais estreita da cintura, geralmente logo acima do umbigo.</li>
+                <li><strong class="text-white">Quadril (Mulheres):</strong> Medir na parte mais larga dos quadris, onde se encontra a maior circunferência.</li>
+            </ul>
+        </div>
+        
+        <!-- Seção de Resultados -->
+        <div id="resultBox" class="mt-8 p-6 bg-gray-800 rounded-lg border border-gray-700 hidden transition-all duration-300 ease-in-out space-y-4">
+            <!-- Resultados de IMC -->
+            <div>
+                <h2 class="text-lg font-bold text-gray-200 mb-2">Seu IMC é: <span id="bmiValue" class="text-white"></span></h2>
+                <p id="bmiCategory" class="text-gray-400"></p>
+            </div>
+            <div>
+                <p class="text-gray-400">Peso ideal para sua altura:</p>
+                <p id="idealWeight" class="text-gray-200"><span class="font-bold text-white"></span></p>
+            </div>
+            <div>
+                <p class="text-gray-400">Consumo de água recomendado:</p>
+                <p id="waterIntake" class="text-gray-200"><span class="font-bold text-white"></span></p>
+            </div>
+            <div id="weightLossInfo" class="hidden">
+                <p class="text-gray-400">Tempo estimado para alcançar o peso ideal (perda de 0,5 a 1 kg por semana):</p>
+                <p id="weightLossTime" class="text-gray-200"><span class="font-bold text-white"></span></p>
+            </div>
+
+            <!-- Resultados de Gordura Corporal -->
+            <div id="bodyFatResult" class="hidden">
+                <h2 class="text-lg font-bold text-gray-200 mt-4 mb-2">Sua % de Gordura Corporal é: <span id="bodyFatValue" class="text-white"></span></h2>
+                <p id="bodyFatCategory" class="text-gray-400"></p>
+            </div>
+        </div>
+
+        <div id="messageBox" class="mt-4 p-4 rounded-md hidden text-center"></div>
+    </div>
+
+    <script>
+        document.getElementById('gender').addEventListener('change', function() {
+            const gender = this.value;
+            const measurementsFields = document.getElementById('measurements-fields');
+            const hipField = document.getElementById('hip-field');
+            if (gender) {
+                measurementsFields.classList.remove('hidden');
+                if (gender === 'female') {
+                    hipField.classList.remove('hidden');
+                } else {
+                    hipField.classList.add('hidden');
+                }
+            } else {
+                measurementsFields.classList.add('hidden');
+            }
+        });
+
+        document.getElementById('calculateBtn').addEventListener('click', function() {
+            const weightInput = document.getElementById('weight');
+            const heightInput = document.getElementById('height');
+            const genderSelect = document.getElementById('gender');
+            const neckInput = document.getElementById('neck');
+            const waistInput = document.getElementById('waist');
+            const hipInput = document.getElementById('hip');
+
+            const resultBox = document.getElementById('resultBox');
+            const messageBox = document.getElementById('messageBox');
+            
+            // Clear previous results and messages
+            resultBox.classList.add('hidden');
+            messageBox.classList.add('hidden');
+            messageBox.classList.remove('bg-red-800', 'text-red-300');
+
+            // Replace comma with period for correct float parsing
+            const weight = parseFloat(weightInput.value.replace(',', '.'));
+            const height = parseFloat(heightInput.value.replace(',', '.'));
+            const gender = genderSelect.value;
+            const neck = parseFloat(neckInput.value.replace(',', '.'));
+            const waist = parseFloat(waistInput.value.replace(',', '.'));
+            const hip = parseFloat(hipInput.value.replace(',', '.'));
+
+            // Check for valid IMC inputs
+            if (isNaN(weight) || isNaN(height) || weight <= 0 || height <= 0) {
+                messageBox.textContent = 'Por favor, insira valores válidos para peso e altura.';
+                messageBox.classList.remove('hidden');
+                messageBox.classList.add('bg-red-800', 'text-red-300');
+                return;
+            }
+
+            // Check for valid Body Fat inputs if gender is selected
+            if (gender && (isNaN(neck) || isNaN(waist) || neck <= 0 || waist <= 0 || (gender === 'female' && (isNaN(hip) || hip <= 0)))) {
+                 messageBox.textContent = 'Por favor, insira todas as medidas para calcular a gordura corporal.';
+                 messageBox.classList.remove('hidden');
+                 messageBox.classList.add('bg-red-800', 'text-red-300');
+                 return;
+            }
+
+            // Calculate BMI
+            const bmi = weight / (height * height);
+            const bmiText = bmi.toFixed(2);
+            let categoryText = '';
+
+            if (bmi < 18.5) {
+                categoryText = 'Abaixo do peso';
+            } else if (bmi >= 18.5 && bmi < 24.9) {
+                categoryText = 'Peso ideal (normal)';
+            } else if (bmi >= 25 && bmi < 29.9) {
+                categoryText = 'Levemente acima do peso';
+            } else if (bmi >= 30 && bmi < 34.9) {
+                categoryText = 'Obesidade grau I';
+            } else if (bmi >= 35 && bmi < 39.9) {
+                categoryText = 'Obesidade grau II (severa)';
+            } else {
+                categoryText = 'Obesidade grau III (mórbida)';
+            }
+
+            // Calculate ideal weight range and water intake
+            const minIdealWeight = (18.5 * height * height).toFixed(2);
+            const maxIdealWeight = (24.9 * height * height).toFixed(2);
+            const water = (weight * 0.035).toFixed(2);
+
+            // Calculate weight loss time if overweight
+            const weightLossInfo = document.getElementById('weightLossInfo');
+            const weightLossTime = document.getElementById('weightLossTime');
+            if (bmi >= 25) {
+                const weightToLose = weight - maxIdealWeight;
+                const minWeeks = Math.ceil(weightToLose / 1.0); // 1kg per week
+                const maxWeeks = Math.ceil(weightToLose / 0.5); // 0.5kg per week
+                const minMonths = Math.ceil(minWeeks / 4.345);
+                const maxMonths = Math.ceil(maxWeeks / 4.345);
+                weightLossTime.textContent = `Aproximadamente ${minMonths} a ${maxMonths} meses`;
+                weightLossInfo.classList.remove('hidden');
+            } else {
+                weightLossInfo.classList.add('hidden');
+            }
+
+            // Calculate Body Fat Percentage
+            const bodyFatResult = document.getElementById('bodyFatResult');
+            const bodyFatValue = document.getElementById('bodyFatValue');
+            const bodyFatCategory = document.getElementById('bodyFatCategory');
+            let bodyFat = null;
+            let bodyFatCategoryText = '';
+
+            if (gender) {
+                const height_cm = height * 100;
+                if (gender === 'male') {
+                    bodyFat = 495 / (1.0324 - 0.19077 * Math.log10(waist - neck) + 0.15456 * Math.log10(height_cm)) - 450;
+                    if (bodyFat <= 5) {
+                        bodyFatCategoryText = 'Gordura Essencial';
+                    } else if (bodyFat <= 13) {
+                        bodyFatCategoryText = 'Atleta';
+                    } else if (bodyFat <= 17) {
+                        bodyFatCategoryText = 'Fitness';
+                    } else if (bodyFat <= 24) {
+                        bodyFatCategoryText = 'Aceitável';
+                    } else {
+                        bodyFatCategoryText = 'Obesidade';
+                    }
+                } else if (gender === 'female') {
+                    bodyFat = 495 / (1.29579 - 0.35004 * Math.log10(waist + hip - neck) + 0.22100 * Math.log10(height_cm)) - 450;
+                    if (bodyFat <= 13) {
+                        bodyFatCategoryText = 'Gordura Essencial';
+                    } else if (bodyFat <= 20) {
+                        bodyFatCategoryText = 'Atleta';
+                    } else if (bodyFat <= 24) {
+                        bodyFatCategoryText = 'Fitness';
+                    } else if (bodyFat <= 31) {
+                        bodyFatCategoryText = 'Aceitável';
+                    } else {
+                        bodyFatCategoryText = 'Obesidade';
+                    }
+                }
+                bodyFatResult.classList.remove('hidden');
+                bodyFatValue.textContent = `${bodyFat.toFixed(2)}%`;
+                bodyFatCategory.textContent = `Categoria: ${bodyFatCategoryText}`;
+            } else {
+                bodyFatResult.classList.add('hidden');
+            }
+
+            // Update UI
+            document.getElementById('bmiValue').textContent = bmiText;
+            document.getElementById('bmiCategory').textContent = `Categoria: ${categoryText}`;
+            document.getElementById('idealWeight').innerHTML = `${minIdealWeight} kg - ${maxIdealWeight} kg`;
+            document.getElementById('waterIntake').innerHTML = `${water} litros`;
+            
+            resultBox.classList.remove('hidden');
+        });
+    </script>
+</body>
+</html>
